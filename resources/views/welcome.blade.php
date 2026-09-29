@@ -921,13 +921,22 @@
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': formData.get('_token')
                 },
                 body: formData
             })
-            .then(res => {
-                if (!res.ok) throw new Error('Failed');
-                return res.json();
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) {
+                    // Laravel validation errors show kora
+                    if (data.errors) {
+                        const errorMsg = Object.values(data.errors).flat().join('\n');
+                        throw new Error(errorMsg);
+                    }
+                    throw new Error(data.message || 'Server error occurred');
+                }
+                return data;
             })
             .then(data => {
                 form.reset();
@@ -940,10 +949,9 @@
             .catch(err => {
                 submitBtn.disabled = false;
                 btnText.innerText = "Lodge Application File";
-                alert('Please check your inputs and try again.');
+                alert(err.message || 'Please check your inputs and try again.');
             });
         });
-
         // ==========================================
         // PART 4: SUCCESS CONFIRMATION MODAL POPUP
         // ==========================================
