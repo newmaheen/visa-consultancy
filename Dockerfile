@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# প্রয়োজনীয় সিস্টেম লাইব্রেরি এবং পিএইচপি এক্সটেনশন ইনস্টল
+# প্রয়োজনীয় সিস্টেম লাইব্রেরি এবং পিএইচপি এক্সটেনশন ইনস্টল
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -33,6 +33,9 @@ COPY . /var/www/html
 
 # ডিপেনডেন্সি ইনস্টল করা (vendor ফোল্ডার তৈরি হবে)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# স্টোরেজ সিম্বলিক লিংক তৈরি করা (যাতে public/storage ফোল্ডারের ইমেজ ব্রাউজারে দেখা যায়)
+RUN php artisan storage:link
 
 # স্টোরেজ এবং বুটস্ট্র্যাপ ক্যাশ ফোল্ডারের পারমিশন ঠিক করা
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
